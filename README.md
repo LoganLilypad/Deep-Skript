@@ -7,7 +7,7 @@ My attempt at making a neural network (deep learning specifically) in vanilla Sk
 ## Features include
 
 - Forward propagation (running)
-- Backpropogation (training)
+- Backpropagation (training)
 - Flexable network sizes
 
 ## How to use
