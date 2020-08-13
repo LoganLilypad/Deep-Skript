@@ -38,6 +38,9 @@ command /xor <int> <int>:
 
         send(runNetwork((arg-1, arg-2)))
 ```
+And the network would look like this if you were to draw it
+
+![What the above example would look like](https://github.com/LoganLilypad/Deep-Skript/raw/master/example.png)
 
 ## TODO
 - Get it working properly
