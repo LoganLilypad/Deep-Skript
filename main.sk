@@ -1,0 +1,115 @@
+function DSCreateNetwork(i: int, l: int, ls: int, o: int):
+    clear {DSNN::*}
+
+    set {DSNN::dim::inputs} to {_i}
+    set {DSNN::dim::layers} to {_l}
+    set {DSNN::dim::layersize} to {_ls}
+    set {DSNN::dim::outputs} to {_o}
+
+    loop {_i} times:
+        set {DSNN::input::%loop-value%} to 0
+    
+    loop {_o} times:
+        set {DSNN::output::%loop-value%} to 0
+    
+    loop {_l} times:
+        loop {_ls} times:
+            add DSRand(0, 1) to {DSNN::neuron::%loop-value-1%::*}
+            add DSRand(0, 1) to {DSNN::bias::%loop-value-1%::*}
+            add 0 to {DSNN::delta::%loop-value-1%::*}
+    
+    loop ({_l} - 1) times:
+        loop {_ls} times:
+            loop {_ls} times:
+                add DSRand(-1, 1) to {DSNN::weight::%loop-value-1%::%loop-value-2%::*}
+    
+    loop {_ls} times:
+        loop {_i} times:
+            add DSRand(-1, 1) to {DSNN::weightio::1::%loop-value-1%::*}
+    
+    set {_bs} to {_l} + 1
+
+    loop {_o} times:
+        loop {_ls} times:
+            add DSRand(-1, 1) to {DSNN::weightio::2::%loop-value-1%::*}
+        add DSRand(0, 1) to {DSNN::bias::%{_bs}%::*}
+
+function DSRunNetwork(i: nums) :: nums:
+    set {DSNN::input::*} to {_i::*}
+
+    loop {DSNN::dim::layersize} times:
+        set {_s} to 0
+        loop {DSNN::dim::inputs} times:
+            add {DSNN::input::%loop-value-2%} * {DSNN::weightio::1::%loop-value-1%::%loop-value-2%} to {_s}
+        set {DSNN::neuron::1::%loop-value-1%} to DSSig({_s} + {DSNN::bias::1::%loop-value-1%})
+    
+    loop ({DSNN::dim::layers} - 1) times:
+        set {_i} to loop-value-1 + 1
+        loop {DSNN::dim::layersize} times:
+            set {_s} to 0
+            loop {DSNN::dim::layersize} times:
+                add {DSNN::neuron::%{_i}%::%loop-value-3%} * {DSNN::weight::%loop-value-1%::%loop-value-2%::%loop-value-3%} to {_s}
+            set {DSNN::neuron::%{_i}%::%loop-value-2%} to DSSig({_s} + {DSNN::bias::%{_i}%::%loop-value-2%})
+    
+    set {_bs} to {DSNN::dim::layers}
+
+    loop {DSNN::dim::outputs} times:
+        set {_s} to 0
+        loop {DSNN::dim::layersize} times:
+            add {DSNN::output::%loop-value-1%} * {DSNN::weightio::2::%loop-value-1%::%loop-value-2%} to {_s}
+        set {DSNN::output::%loop-value-1%} to DSSig({_s} + {DSNN::bias::%{_bs}%::%loop-value-1%})
+    
+    return {DSNN::output::*}
+
+function DSTrainNetwork(ep: int, lr: num):
+    loop {_ep} times:
+        set {_s} to 0
+        loop size of {DSNN::data::*} times:
+            set {_o::*} to DSRunNetwork({DSNN::data::%loop-value-2%::*})
+            set {_e::*} to {DSNN::datae::%loop-value-2%::*}
+            loop size of {_o::*} times:
+                add ({_e::%loop-value-3%} - {_o::%loop-value-3%})^2 to {_s}
+            DSBackpropagate({_e::*})
+            DSNudgeWeights({_lr})
+
+function DSBackpropagate(err: nums):
+    loop {DSNN::dim::layers} times:
+        set {_i} to {DSNN::dim::layers} - loop-value - 1
+        set {_i2} to {_i} - 1
+        if {_i} != {DSNN::dim::layers} - 1:
+            loop {DSNN::dim::layersize} times:
+                set {_e} to 0
+                loop {DSNN::dim::layersize} times:
+                    add {DSNN::weight::%{_i2}%::%loop-value-2%::%loop-value-3%} * {DSNN::delta::%{_i}%::%loop-value-2%} to {_e}
+                add {_e} to {_e::*}
+        else:
+            loop {DSNN::dim::layersize} times:
+                add {_err::1} - {DSNN::neuron::%{_i}%::%loop-value-2%} to {_e::*}
+        loop {DSNN::dim::layersize} times:
+            set {DSNN::delta::%{_i}%::%loop-value-2%} to {_e::%loop-value-2%} * DSDerivSig({DSNN::neuron::%{_i}%::%loop-value-2%})
+
+function DSNudgeWeights(r: num):
+    loop {DSNN::dim::layers} times:
+        set {_i2} to loop-value-1 - 1
+        if loop-value-1 != 1:
+            loop {DSNN::dim::layersize} times:
+                add {DSNN::neuron::%{_i2}%::%loop-value-2%} to {_in::*}
+        loop {DSNN::dim::layersize} times:
+            loop size of {_in::*} times:
+                add {_r} * {DSNN::neuron::%loop-value-1%::%loop-value-2%} * {_in::%loop-value-2%} to {DSNN::weight::%{_i2}%::%loop-value-2%::%loop-value-3%}
+            set {_l} to size of {DSNN::weight::%{_i2}%::%loop-value-2%::*}
+            set {DSNN::weight::%{_i2}%::%loop-value-2%::%{_l}%} to {_r} * {DSNN::neuron::%loop-value-1%::%loop-value-2%}
+
+function DSPumpTraining(d: nums, a: nums):
+    set {_s} to size of {DSNN::data::*} + 1
+    set {DSNN::data::%{_s}%::*} to {_d::*}
+    set {DSNN::datae::%{_s}%::*} to {_a::*}
+
+function DSRand(min: num, max: num) :: num:
+    return a random number between {_min} and {_max}
+
+function DSSig(x: num) :: num:
+    return 1 / (1 + exp(-1 * {_x}))
+
+function DSDerivSig(x: num) :: num:
+    return {_x} * (1 - {_x})
