@@ -12,13 +12,13 @@ My attempt at making a neural network (deep learning specifically) in vanilla Sk
 
 ## How to use
 
-Create the network with `createNetwork(inputs, layers, neurons-per-layer, outputs)` where all parameters are positive integers
+Create the network with `DSCreateNetwork(inputs, layers, neurons-per-layer, outputs)` where all parameters are positive integers
 
-Give the network training data with `addTraining(inputs, correct-answer)` where `inputs` is a list of inputs that matches the size of the network inputs and `correct-answer` is also a list of the desired outputs, which also need to match the size of the network outputs
+Give the network training data with `DSPumpTraining(inputs, correct-answer)` where `inputs` is a list of inputs that matches the size of the network inputs and `correct-answer` is also a list of the desired outputs, which also need to match the size of the network outputs
 
-Then you can actually train it with `trainNetwork(epochs, rate)` where `epochs` is how many iterations to train it over and `rate` is the rate at which it learns
+Then you can actually train it with `DSTrainNetwork(epochs, rate)` where `epochs` is how many iterations to train it over and `rate` is the rate at which it learns
 
-And finally run the network with `runNetwork(inputs)` where `inputs` is a list of... inputs
+And finally run the network with `DSRunNetwork(inputs)` where `inputs` is a list of... inputs
 
 ## Simple example
 
