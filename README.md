@@ -27,16 +27,16 @@ Teaching it the rules of XOR
 ```
 command /xor <int> <int>:
     trigger:
-        createNetwork(2, 2, 2, 1)
+        DSCreateNetwork(2, 2, 2, 1)
 
-        addTraining((0, 0), (0))
-        addTraining((1, 0), (1))
-        addTraining((0, 1), (1))
-        addTraining((1, 1), (0))
+        DSPumpTraining((0, 0), (0))
+        DSPumpTraining((1, 0), (1))
+        DSPumpTraining((0, 1), (1))
+        DSPumpTraining((1, 1), (0))
 
-        trainNetwork(5, .1)
+        DSTrainNetwork(5, .1)
 
-        send(runNetwork((arg-1, arg-2)))
+        send "%runNetwork((arg-1, arg-2))%"
 ```
 And the network would look like this if you were to draw it
 
