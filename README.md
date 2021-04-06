@@ -8,7 +8,7 @@ My attempt at making a neural network (deep learning specifically) in vanilla Sk
 
 - Forward propagation (running)
 - Backpropagation (training)
-- Flexable network sizes
+- Flexible network sizes
 
 ## How to use
 
@@ -40,7 +40,7 @@ command /xor <int> <int>:
 ```
 And the network would look like this if you were to draw it
 
-![What the above example would look like](https://github.com/LoganLilypad/Deep-Skript/raw/master/example.png)
+![What the above example would look like](example.png)
 
 ## TODO
 - Get it working properly
